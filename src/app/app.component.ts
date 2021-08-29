@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { STATE } from './design.states';
+import { BUTTONS } from './buttons.constants';
+import { Component, HostListener  } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +8,108 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'angular-calculator';
+  btns: any[] = BUTTONS;
+  state: string[] = STATE;
+
+  option: number = 1;
+  firstValue: number = 0;
+  operator: string = ''
+  secondValue: number;
+  allValues: string = '';
+  currentOption = this.state[0];
+
+
+  onDesignChange(){
+    this.option++;
+    this.option = this.option > 3 ? 1 : this.option;
+    this.currentOption = this.state[this.option-1];
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    let customKey = event.key;
+    switch(event.key){
+      case 'Enter':
+        customKey = '=';
+        break;
+      case 'Backspace':
+        customKey = 'DEL';
+        break;
+      case 'Escape':
+        customKey = 'RESET';
+        break;
+      default:
+        break;
+    }
+    this.onPress(customKey);
+  }
+
+  onPress(key){
+    switch(key){
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+      case '.':
+        this.allValues+=key;
+        break;
+      case '+':
+      case '-':
+      case 'x':
+      case '/':
+        if(!this.operator){
+          this.firstValue = +this.allValues;
+          this.allValues = '';
+          this.operator = key;
+        }else{
+          if(this.allValues){
+           this.firstValue = this.compute();
+           this.allValues = '';
+          }
+          this.operator = key;
+        }
+        break;
+      case '=':
+        if(this.firstValue && this.allValues){
+          this.allValues = String(this.compute());
+          this.operator = '';
+          this.firstValue = 0;
+        }
+        break;
+      case 'DEL':
+        if(this.allValues){
+          this.allValues = this.allValues.slice(0, this.allValues.length - 1);
+        }
+        break;
+      case 'RESET':
+        this.allValues = '';
+        this.operator = '';
+        this.firstValue = 0;
+        break;
+      default:
+          break;
+    }
+  }
+
+  compute(){
+    switch(this.operator){
+      case '+':
+       return (this.firstValue + +this.allValues);
+      case '-':
+        return (this.firstValue - +this.allValues);
+      case 'x':
+        return (this.firstValue * +this.allValues);
+      case '/':
+        return (this.firstValue / +this.allValues);
+        default:
+          break;
+    }
+  }
+  
 }
