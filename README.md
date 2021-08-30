@@ -1,3 +1,7 @@
+# Live Preview
+
+You can preview the live demo at: https://matthewohreluy.github.io/angular-calculator/
+
 # AngularCalculator
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.0.5.
