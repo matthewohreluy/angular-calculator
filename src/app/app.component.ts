@@ -56,8 +56,15 @@ export class AppComponent {
       case '7':
       case '8':
       case '9':
-      case '.':
         this.allValues+=key;
+        break;
+      case '.':
+        if(this.allValues.length <= 0){
+          this.allValues += '0.'
+        }
+        if(!this.allValues.includes('.')){
+          this.allValues += key;
+        }
         break;
       case '+':
       case '-':
@@ -69,7 +76,7 @@ export class AppComponent {
           this.operator = key;
         }else{
           if(this.allValues){
-           this.firstValue = this.compute();
+            this.firstValue = this.compute();
            this.allValues = '';
           }
           this.operator = key;
@@ -95,21 +102,33 @@ export class AppComponent {
       default:
           break;
     }
+    this.lengthChecker()
+  }
+
+  lengthChecker(){
+    if(this.allValues.length > 15){
+      this.allValues = this.allValues.slice(0,15);
+    }
   }
 
   compute(){
+    let ans:number;
     switch(this.operator){
       case '+':
-       return (this.firstValue + +this.allValues);
+       ans = (this.firstValue + +this.allValues);
+        break;
       case '-':
-        return (this.firstValue - +this.allValues);
+        ans = (this.firstValue - +this.allValues);
+        break;
       case 'x':
-        return (this.firstValue * +this.allValues);
+        ans = (this.firstValue * +this.allValues);
+        break;
       case '/':
-        return (this.firstValue / +this.allValues);
+        ans = (this.firstValue / +this.allValues);
         default:
           break;
     }
+    return Math.round(ans * 1000000000000) / 1000000000000;
   }
   
 }
