@@ -1,22 +1,44 @@
+import { STATE } from './design.states';
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CalculatorFunctionsService{
+  // Logic Variables
   firstValue: number = 0;
   operator: string = ''
-  secondValue: number;
   allValues: string = '';
-
-  objectEmitter = {
-    firstValueSubject: new Subject<number>(),
-    secondValueSubject: new Subject<number>(),
-    operatorSubject: new Subject<string>(),
-    allValuesSubject: new Subject<string>()
+  public get getAllValues(): string {
+    return this.allValues;
   }
- 
+
+  public get getOperator(): string {
+    return this.operator;
+  }
+
+  public get getFirstValue(): number {
+    return this.firstValue;
+  }
+
+  // Design Variables
+  state: string[] = STATE;
+  option: number = 1;
+  currentOption: string = this.state[0];
+
+  public get getOption(): number {
+    return this.option;
+  }
+
+  public get getCurrentOption(): string {
+    return this.currentOption;
+  }
+
+  changeUI() {
+    this.option++;
+    this.option = this.option > 3 ? 1 : this.option;
+    this.currentOption = this.state[this.option - 1];
+  }
 
 
   handleKeyboardEvent(key) {
@@ -30,14 +52,13 @@ export class CalculatorFunctionsService{
       case 'Escape':
         key = 'RESET';
         break;
+      case '*':
+        key = 'x';
+        break;
       default:
         break;
     }
     this.analyzeKey(key);
-  }
-
-  emit(value){
-        this.objectEmitter[value + 'Subject'].next(this[value]);
   }
 
   analyzeKey(key) {
@@ -53,70 +74,60 @@ export class CalculatorFunctionsService{
       case '8':
       case '9':
         this.allValues += key;
-        this.emit('allValues');
         break;
       case '.':
         if (this.allValues.length <= 0) {
           this.allValues += '0.'
-          this.emit('allValues');
         }
         if (!this.allValues.includes('.')) {
           this.allValues += key;
-          this.emit('allValues');
         }
         break;
       case '+':
       case '-':
       case 'x':
       case '/':
+        if(this.operator){
+          if(key === '-'){
+            if(this.allValues[0]!== '-'){
+              this.allValues = '-'+this.allValues;
+              break;
+            }
+          }
+        }
         if (!this.operator) {
           this.firstValue = +this.allValues;
-          this.emit('firstValue');
           this.allValues = '';
-          this.emit('allValues');
           this.operator = key;
-          this.emit('operator');
         } else {
-          if (this.allValues) {
+          if (this.allValues && this.allValues !== '-') {
             this.firstValue = this.compute();
-            this.emit('firstValue');
             this.allValues = '';
-            this.emit('allValues');
           }
           this.operator = key;
-          this.emit('operator');
         }
         break;
       case '=':
-        if (this.firstValue && this.allValues) {
+        if (this.firstValue && this.allValues && this.allValues !== '-') {
           this.allValues = String(this.compute());
-          // console.log(this.allValues);
-          this.emit('allValues');
           this.operator = '';
-          this.emit('operator');
           this.firstValue = 0;
-          this.emit('firstValue');
         }
         break;
       case 'DEL':
         if (this.allValues) {
           this.allValues = this.allValues.slice(0, this.allValues.length - 1);
-          this.emit('allValues');
         }
         break;
       case 'RESET':
         this.allValues = '';
-        this.emit('allValues');
         this.operator = '';
-        this.emit('operator');
         this.firstValue = 0;
-        this.emit('firstValue');
         break;
       default:
         break;
     }
     this.allValues = this.lengthChecker();
-    this.emit('allValues');
   }
 
   lengthChecker() {

@@ -1,40 +1,39 @@
-<div class="container bg-{{option}}">
+<div class="container bg-{{calculatorFunctions.getOption}}">
   <div class="calculator">
 
-    <div class="calc-heading calc-text-color-{{option}} disable-highlight">
+    <div class="calc-heading calc-text-color-{{calculatorFunctions.getOption}} disable-highlight">
       <h2>calc</h2>
       <div class="theme-container">
           <p (click)="onDesignChange()">
-            <span>1</span>
-            <span>2</span>
-            <span>3</span>
+            <span *ngFor="let i of [1,2,3]">{{i}}</span>
           </p>
         <div class="row">
           <p (click)="onDesignChange()">THEME</p>
-          <div (click)="onDesignChange()" [appThemeOption]="currentOption" class="slider calc-content-{{option}}">
-            <div class="ball btn-ball-{{option}}"></div>
+          <div (click)="onDesignChange()" [appThemeOption]="calculatorFunctions.getCurrentOption" class="slider calc-content-{{calculatorFunctions.getOption}}">
+            <div class="ball btn-ball-{{calculatorFunctions.getOption}}"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="calc-content calc-content-{{option}}">
-        <p class="number-header number-header-theme-{{option}} disable-highlight">{{firstValue}} {{operator}}</p>
-        <p class="number-content calc-text-color-{{option}}">{{allValues === '' ? 0 : allValues}}</p>
+    <div class="calc-content calc-content-{{calculatorFunctions.getOption}}">
+        <p class="number-header number-header-theme-{{calculatorFunctions.getOption}} disable-highlight">{{calculatorFunctions.getFirstValue}} {{calculatorFunctions.getOperator}}</p>
+        <p class="number-content calc-text-color-{{calculatorFunctions.getOption}}">
+          {{calculatorFunctions.getAllValues === '' ? 0 : calculatorFunctions.getAllValues}}
+        </p>
     </div>
 
-
-    <div class="calc-body calc-body-{{option}} disable-highlight" >
+    <div class="calc-body calc-body-{{calculatorFunctions.getOption}} disable-highlight" >
       <div class="square-buttons">
         <div *ngFor="let btn of btns; let i = index" class="flex-item {{btn.parentClass}}">
           <button (click)="onPress(btn.name)"
-          class="btn {{btn.buttonClass}} btn-{{btn.color}}-{{option}}" 
+          class="btn {{btn.buttonClass}} btn-{{btn.color}}-{{calculatorFunctions.getOption}}" 
           >{{btn.name}}</button>
         </div>
       </div>
     </div>
+
   </div>
-  
 </div>
 <!-- <footer class="attribution">
   Challenge by <a href="https://www.frontendmentor.io?ref=challenge" target="_blank">Frontend Mentor</a>.
