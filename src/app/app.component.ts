@@ -1,23 +1,48 @@
+import { CalculatorFunctionsService } from './calculator-functions.service';
 import { STATE } from './design.states';
 import { BUTTONS } from './buttons.constants';
-import { Component, HostListener  } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit  } from '@angular/core';
+import { SubSink } from 'subsink';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
-  btns: any[] = BUTTONS;
-  state: string[] = STATE;
-
-  option: number = 1;
+export class AppComponent implements OnInit, OnDestroy{
+  constructor(private calculatorFunctions: CalculatorFunctionsService) { }
+  // for subscriptions
+  subs = new SubSink();
+  // Calculation variables
   firstValue: number = 0;
   operator: string = ''
   secondValue: number;
   allValues: string = '';
-  currentOption = this.state[0];
 
+  // Design Variables
+  btns: any[] = BUTTONS;
+  state: string[] = STATE;
+  option: number = 1;
+  currentOption = this.state[0];
+ 
+  ngOnInit(){
+    this.subs.add(this.calculatorFunctions.objectEmitter.firstValueSubject.subscribe((firstValue)=>{
+      this.firstValue = firstValue;
+    }));
+    this.subs.add(this.calculatorFunctions.objectEmitter.secondValueSubject.subscribe((secondValue) => {
+      this.secondValue = secondValue;
+    }));
+    this.subs.add(this.calculatorFunctions.objectEmitter.operatorSubject.subscribe((operator) => {
+      this.operator = operator;
+    }));
+    this.subs.add(this.calculatorFunctions.objectEmitter.allValuesSubject.subscribe((allValues) => {
+      this.allValues = allValues;
+    }));
+  }
+
+  ngOnDestroy(){
+    this.subs.unsubscribe();
+  }
 
   onDesignChange(){
     this.option++;
@@ -26,109 +51,14 @@ export class AppComponent {
   }
 
   @HostListener('document:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) {
+  onHandleKeyboardEvent(event: KeyboardEvent) {
     let customKey = event.key;
-    switch(event.key){
-      case 'Enter':
-        customKey = '=';
-        break;
-      case 'Backspace':
-        customKey = 'DEL';
-        break;
-      case 'Escape':
-        customKey = 'RESET';
-        break;
-      default:
-        break;
-    }
-    this.onPress(customKey);
+    this.calculatorFunctions.handleKeyboardEvent(customKey);
   }
 
   onPress(key){
-    switch(key){
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-        this.allValues+=key;
-        break;
-      case '.':
-        if(this.allValues.length <= 0){
-          this.allValues += '0.'
-        }
-        if(!this.allValues.includes('.')){
-          this.allValues += key;
-        }
-        break;
-      case '+':
-      case '-':
-      case 'x':
-      case '/':
-        if(!this.operator){
-          this.firstValue = +this.allValues;
-          this.allValues = '';
-          this.operator = key;
-        }else{
-          if(this.allValues){
-            this.firstValue = this.compute();
-           this.allValues = '';
-          }
-          this.operator = key;
-        }
-        break;
-      case '=':
-        if(this.firstValue && this.allValues){
-          this.allValues = String(this.compute());
-          this.operator = '';
-          this.firstValue = 0;
-        }
-        break;
-      case 'DEL':
-        if(this.allValues){
-          this.allValues = this.allValues.slice(0, this.allValues.length - 1);
-        }
-        break;
-      case 'RESET':
-        this.allValues = '';
-        this.operator = '';
-        this.firstValue = 0;
-        break;
-      default:
-          break;
-    }
-    this.lengthChecker()
+    this.calculatorFunctions.analyzeKey(key);
   }
 
-  lengthChecker(){
-    if(this.allValues.length > 15){
-      this.allValues = this.allValues.slice(0,15);
-    }
-  }
-
-  compute(){
-    let ans:number;
-    switch(this.operator){
-      case '+':
-       ans = (this.firstValue + +this.allValues);
-        break;
-      case '-':
-        ans = (this.firstValue - +this.allValues);
-        break;
-      case 'x':
-        ans = (this.firstValue * +this.allValues);
-        break;
-      case '/':
-        ans = (this.firstValue / +this.allValues);
-        default:
-          break;
-    }
-    return Math.round(ans * 1000000000000) / 1000000000000;
-  }
   
 }

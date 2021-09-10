@@ -1,7 +1,7 @@
 <div class="container bg-{{option}}">
   <div class="calculator">
 
-    <div class="calc-heading calc-text-color-{{option}}">
+    <div class="calc-heading calc-text-color-{{option}} disable-highlight">
       <h2>calc</h2>
       <div class="theme-container">
           <p (click)="onDesignChange()">
@@ -19,12 +19,12 @@
     </div>
 
     <div class="calc-content calc-content-{{option}}">
-        <p class="number-header number-header-theme-{{option}}">{{firstValue}} {{operator}}</p>
+        <p class="number-header number-header-theme-{{option}} disable-highlight">{{firstValue}} {{operator}}</p>
         <p class="number-content calc-text-color-{{option}}">{{allValues === '' ? 0 : allValues}}</p>
     </div>
 
 
-    <div class="calc-body calc-body-{{option}}" >
+    <div class="calc-body calc-body-{{option}} disable-highlight" >
       <div class="square-buttons">
         <div *ngFor="let btn of btns; let i = index" class="flex-item {{btn.parentClass}}">
           <button (click)="onPress(btn.name)"
